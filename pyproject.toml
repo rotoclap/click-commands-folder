@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "click-commands-folder"
+version = "0.1"
+authors = [
+  { name="rotoclap", email="rotoclap@gmail.com" },
+]
+description = "A Click extension to read commands from a folder"
+readme = "README.MD"
+license = {file = "LICENSE"}
+requires-python = ">=3.12"
+dependencies = [
+    "click"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console"
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = ["click", "command", "folder"]
+
+[project.urls]
+Homepage = "https://github.com/rotoclap/click-commands-folder"
+Issues = "https://github.com/rotoclap/click-commands-folder/issues"
