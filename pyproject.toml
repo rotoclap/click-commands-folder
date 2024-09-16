@@ -12,17 +12,17 @@ description = "A Click extension to read commands from a folder"
 readme = "README.MD"
 license = {file = "LICENSE"}
 requires-python = ">=3.12"
-dependencies = [
-    "click"
-]
 classifiers = [
     "Development Status :: 4 - Beta",
-    "Environment :: Console"
+    "Environment :: Console",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 keywords = ["click", "command", "folder"]
+dependencies = [
+    "click"
+]
 
 [project.urls]
 Homepage = "https://github.com/rotoclap/click-commands-folder"
