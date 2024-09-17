@@ -1,7 +1,7 @@
 API
 ===
 
-.. autosummary::
-   :toctree: generated
+.. module:: click_commands_folder.commands_folder
 
-   click_commands_folder
+.. autoclass:: CommandsFolder
+   :members:
