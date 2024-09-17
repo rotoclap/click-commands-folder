@@ -16,7 +16,7 @@ def test_list_commands():
         "command_b:custom_name",
         "command_a:cli",
         "command_group:a",
-        "command_group:b"
+        "command_group:b",
     }
 
 
