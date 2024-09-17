@@ -11,10 +11,8 @@ import click
 
 class CommandsFolder(click.Group):
     """A ```Group``` that looks up subcommands on a folder."""
-    def __init__(self,
-                 path: str,
-                 name: str | None = None,
-                 **attrs: Any) -> None:
+
+    def __init__(self, path: str, name: str | None = None, **attrs: Any) -> None:
         super().__init__(name, **attrs)
 
         # The folder where all module commands are stored
@@ -23,10 +21,7 @@ class CommandsFolder(click.Group):
         self.commands = self._load_commands()
 
     def _load_command_module(self, name: str, file: Path) -> types.ModuleType:
-        spec = importlib.util.spec_from_file_location(
-            name,
-            location=file
-        )
+        spec = importlib.util.spec_from_file_location(name, location=file)
 
         module = importlib.util.module_from_spec(spec)
         sys.modules[name] = module
@@ -39,7 +34,8 @@ class CommandsFolder(click.Group):
         commands = {}
 
         modules_files = [
-            item for item in self.path.iterdir()
+            item
+            for item in self.path.iterdir()
             if (
                 item.is_file()
                 and item.suffix.lower() == ".py"
@@ -68,12 +64,8 @@ class CommandsFolder(click.Group):
     def list_commands(self, ctx: click.Context) -> List[str]:
         return sorted(self.commands)
 
-    def get_command(self,
-                    ctx: click.Context,
-                    cmd_name: str) -> click.Command | None:
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
         if isinstance(self.commands[cmd_name], click.Group):
-            return self.commands[cmd_name].get_command(
-                ctx,
-                cmd_name.split(":")[1])
+            return self.commands[cmd_name].get_command(ctx, cmd_name.split(":")[1])
         else:
             return self.commands[cmd_name]
