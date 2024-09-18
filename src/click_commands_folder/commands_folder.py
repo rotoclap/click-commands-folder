@@ -3,7 +3,6 @@ import importlib.util
 import sys
 import types
 from typing import Any
-from typing import Dict
 from typing import List
 
 import click
@@ -18,9 +17,28 @@ class CommandsFolder(click.Group):
         # The folder where all module commands are stored
         self.path = Path(path)
 
-        self.commands: dict[str, click.Command | click.Group] = self._load_commands()
+        self.modules: dict[str, types.ModuleType] = self._load_modules()
 
-    def _load_command_module(self, name: str, file: Path) -> types.ModuleType:
+    def _load_modules(self):
+        modules = {}
+
+        files = [
+            item
+            for item in self.path.iterdir()
+            if (
+                item.is_file()
+                and item.suffix.lower() == ".py"
+                and item.name.lower() != "__init__.py"
+            )
+        ]
+
+        for file in files:
+            module = self._import_module(f"{__package__}.{__name__}.{file.stem}", file)
+            modules[file.stem] = module
+
+        return modules
+
+    def _import_module(self, name: str, file: Path) -> types.ModuleType:
         spec = importlib.util.spec_from_file_location(name, location=file)
 
         if spec is None:
@@ -36,43 +54,40 @@ class CommandsFolder(click.Group):
 
         return module
 
-    def _load_commands(self) -> Dict[str, click.Command]:
-        """Returns all commands found in folder."""
-        commands: dict[str, click.Command] = {}
+    def _load_commands(self, ctx: click.Context):
+        commands = {}
 
-        modules_files = [
-            item
-            for item in self.path.iterdir()
-            if (
-                item.is_file()
-                and item.suffix.lower() == ".py"
-                and item.name.lower() != "__init__.py"
-            )
-        ]
+        for module_name, module in self.modules.items():
+            if type(module.cli) is click.Group:
+                module_commands = [
+                    module.cli.get_command(ctx, command_name)
+                    for command_name in module.cli.list_commands(ctx)
+                ]
 
-        for file in modules_files:
-            module_name = f"app.commands.{file.stem}"
-            module = self._load_command_module(module_name, file)
-
-            if isinstance(module.cli, click.Group):
-                module_commands = {
-                    f"{file.stem}:{module_command}": module.cli
-                    for module_command in module.cli.list_commands(None)  # type: ignore
-                }
-
-                commands.update(module_commands)
-            elif isinstance(module.cli, click.Command):
-                commands[f"{file.stem}:{module.cli.name}"] = module.cli
+                commands.update(
+                    {
+                        f"{module_name}:{command.name}": command
+                        for command in module_commands
+                        if command is not None
+                    }
+                )
+            elif type(module.cli) is click.Command:
+                commands.update({f"{module_name}:{module.cli.name}": module.cli})
             else:
-                raise TypeError(module.cli)
+                raise TypeError(f"Can't get commands from module {module_name}")
 
-        return commands
+        for name, command in commands.items():
+            self.add_command(command, name)
 
-    def list_commands(self, ctx: click.Context | None) -> List[str]:
+    def list_commands(self, ctx: click.Context) -> List[str]:
+        self._load_commands(ctx)
+
         return sorted(self.commands)
 
     def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
-        if type(self.commands[cmd_name]) is click.Group:
-            return self.commands[cmd_name].get_command(ctx, cmd_name.split(":")[1])  # type: ignore
-        else:
+        self._load_commands(ctx)
+
+        try:
             return self.commands[cmd_name]
+        except KeyError:
+            return None
