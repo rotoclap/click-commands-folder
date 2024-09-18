@@ -18,20 +18,27 @@ class CommandsFolder(click.Group):
         # The folder where all module commands are stored
         self.path = Path(path)
 
-        self.commands = self._load_commands()
+        self.commands: dict[str, click.Command | click.Group] = self._load_commands()
 
     def _load_command_module(self, name: str, file: Path) -> types.ModuleType:
         spec = importlib.util.spec_from_file_location(name, location=file)
 
+        if spec is None:
+            raise ValueError(f"Can't find module at {file}")
+
         module = importlib.util.module_from_spec(spec)
         sys.modules[name] = module
+
+        if spec.loader is None:
+            raise ValueError(f"Can't load module from {file}")
+
         spec.loader.exec_module(module)
 
         return module
 
     def _load_commands(self) -> Dict[str, click.Command]:
         """Returns all commands found in folder."""
-        commands = {}
+        commands: dict[str, click.Command] = {}
 
         modules_files = [
             item
@@ -50,7 +57,7 @@ class CommandsFolder(click.Group):
             if isinstance(module.cli, click.Group):
                 module_commands = {
                     f"{file.stem}:{module_command}": module.cli
-                    for module_command in module.cli.list_commands(None)
+                    for module_command in module.cli.list_commands(None)  # type: ignore
                 }
 
                 commands.update(module_commands)
@@ -61,11 +68,11 @@ class CommandsFolder(click.Group):
 
         return commands
 
-    def list_commands(self, ctx: click.Context) -> List[str]:
+    def list_commands(self, ctx: click.Context | None) -> List[str]:
         return sorted(self.commands)
 
     def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
-        if isinstance(self.commands[cmd_name], click.Group):
-            return self.commands[cmd_name].get_command(ctx, cmd_name.split(":")[1])
+        if type(self.commands[cmd_name]) is click.Group:
+            return self.commands[cmd_name].get_command(ctx, cmd_name.split(":")[1])  # type: ignore
         else:
             return self.commands[cmd_name]
