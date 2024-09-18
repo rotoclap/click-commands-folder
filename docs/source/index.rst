@@ -1,8 +1,8 @@
 Click Commands Folder documentation
 ===================================
 
-**Click Commands Folder** is a Click extension allowing to load in open Click
-CommandGroup all commands stored in a folder.
+**Click Commands Folder** is a Click extension allowing to use multiple ``Command``
+only by specifying the folder path where they are stored.
 
 Check out the :doc:`usage` section for further information, including
 how to :ref:`installation` the project.
