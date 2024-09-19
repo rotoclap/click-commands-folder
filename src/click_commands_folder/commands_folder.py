@@ -10,7 +10,7 @@ import click
 
 class CommandsFolder(click.Group):
     """A :class:`Group` that looks up subcommands from a folder.
-    
+
     :param path: The folder path where the subcommands are stored.
     :param name: The name of the group command.
     :param attrs: Other arguments passed to :class:`Group`
@@ -49,7 +49,7 @@ class CommandsFolder(click.Group):
 
     def _import_module(self, name: str, file: Path) -> types.ModuleType:
         """Load a module from a file and return it.
-        
+
         :param name: Name to be used during the module importation.
         :param file: Module file path.
         """
@@ -70,7 +70,7 @@ class CommandsFolder(click.Group):
 
     def _load_commands(self, ctx: click.Context) -> None:
         """Add commands found in the registered modules.
-        
+
         This function will look for the object `cli` in each module. This object must be
         a :class:`Command` or a :class:`Group`. If `cli` is a :class:`Group` instance,
         all subcommands will be added instead.
@@ -107,20 +107,22 @@ class CommandsFolder(click.Group):
 
     def list_commands(self, ctx: click.Context) -> List[str]:
         """Load and return the list of all registered commands.
-        
+
         :param ctx: A :class:`Context` object used when loading the commands.
         """
-        self._load_commands(ctx)
+        if len(self.commands) == 0:
+            self._load_commands(ctx)
 
         return sorted(self.commands)
 
     def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
         """Load and return a command.
-        
+
         :param ctx: A :class:`Context` object used when loading the commands.
         :param cmd_name: The name of the desired command.
         """
-        self._load_commands(ctx)
+        if len(self.commands) == 0:
+            self._load_commands(ctx)
 
         try:
             return self.commands[cmd_name]
