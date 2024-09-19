@@ -25,7 +25,7 @@ class CommandsFolder(click.Group):
         #: The loaded Python modules containing the subcommands.
         self.modules: dict[str, types.ModuleType] = self._load_modules()
 
-    def _load_modules(self):
+    def _load_modules(self) -> dict[str, types.ModuleType]:
         """This function explores the folder path and load all modules from Python files
         except ``__init__.py`` if found.
         """
@@ -68,7 +68,7 @@ class CommandsFolder(click.Group):
 
         return module
 
-    def _load_commands(self, ctx: click.Context):
+    def _load_commands(self, ctx: click.Context) -> None:
         """Add commands found in the registered modules.
         
         This function will look for the object `cli` in each module. This object must be
