@@ -9,7 +9,12 @@ import click
 
 
 class CommandsFolder(click.Group):
-    """A ```Group``` that looks up subcommands on a folder."""
+    """A :class:`Group` that looks up subcommands from a folder.
+    
+    :param path: The folder path where the subcommands are stored.
+    :param name: The name of the group command.
+    :param attrs: Other arguments passed to :class:`Group`
+    """
 
     def __init__(self, path: str, name: str | None = None, **attrs: Any) -> None:
         super().__init__(name, **attrs)
@@ -17,9 +22,13 @@ class CommandsFolder(click.Group):
         # The folder where all module commands are stored
         self.path = Path(path)
 
+        #: The loaded Python modules containing the subcommands.
         self.modules: dict[str, types.ModuleType] = self._load_modules()
 
     def _load_modules(self):
+        """This function explores the folder path and load all modules from Python files
+        except ``__init__.py`` if found.
+        """
         modules = {}
 
         files = [
@@ -39,6 +48,11 @@ class CommandsFolder(click.Group):
         return modules
 
     def _import_module(self, name: str, file: Path) -> types.ModuleType:
+        """Load a module from a file and return it.
+        
+        :param name: Name to be used during the module importation.
+        :param file: Module file path.
+        """
         spec = importlib.util.spec_from_file_location(name, location=file)
 
         if spec is None:
@@ -55,6 +69,18 @@ class CommandsFolder(click.Group):
         return module
 
     def _load_commands(self, ctx: click.Context):
+        """Add commands found in the registered modules.
+        
+        This function will look for the object `cli` in each module. This object must be
+        a :class:`Command` or a :class:`Group`. If `cli` is a :class:`Group` instance,
+        all subcommands will be added instead.
+
+        Each command (or subcommand) will be named following this rule:
+        `<module_name>:<command_name>`
+
+        :param ctx: A :class:`Context` instance passed to :function:`add_command`
+            inherited from :class:`Group`
+        """
         commands = {}
 
         for module_name, module in self.modules.items():
@@ -80,11 +106,20 @@ class CommandsFolder(click.Group):
             self.add_command(command, name)
 
     def list_commands(self, ctx: click.Context) -> List[str]:
+        """Load and return the list of all registered commands.
+        
+        :param ctx: A :class:`Context` object used when loading the commands.
+        """
         self._load_commands(ctx)
 
         return sorted(self.commands)
 
     def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+        """Load and return a command.
+        
+        :param ctx: A :class:`Context` object used when loading the commands.
+        :param cmd_name: The name of the desired command.
+        """
         self._load_commands(ctx)
 
         try:
