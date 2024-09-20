@@ -6,8 +6,8 @@ project = "Click Commands Folder"
 copyright = "2024, rotoclap"
 author = "rotoclap"
 
-release = "0.9"
-version = "0.9.0"
+release = "1.0"
+version = "1.0.0"
 
 # -- General configuration
 

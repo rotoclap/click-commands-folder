@@ -7,7 +7,7 @@ build:
 
 python:
   install:
-    - requirements: docs/requirements.txt
+    - requirements: requirements/docs.txt
     - method: pip
       path: ./src/click_commands_folder
 
