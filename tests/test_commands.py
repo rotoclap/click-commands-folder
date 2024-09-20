@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import click
+import pytest
 
 from click_commands_folder.commands_folder import CommandsFolder
 
@@ -8,13 +9,20 @@ testdir = Path(__file__).parent
 
 
 def test_load_modules():
-    cli = CommandsFolder(testdir / "fixtures/commands", "test")
+    cli = CommandsFolder(testdir / "fixtures/commands", "test", ["not_a_command.py"])
 
     assert set(cli.modules.keys()) == {"command_b", "command_a", "command_group"}
 
 
-def test_load_commands():
+def test_load_modules_incorrect_cli():
     cli = CommandsFolder(testdir / "fixtures/commands", "test")
+
+    with pytest.raises(TypeError):
+        cli._load_commands(None)
+
+
+def test_load_commands():
+    cli = CommandsFolder(testdir / "fixtures/commands", "test", ["not_a_command.py"])
     cli._load_commands(None)
 
     assert set(cli.commands) == {
@@ -29,7 +37,7 @@ def test_load_commands():
 
 
 def test_list_commands():
-    cli = CommandsFolder(testdir / "fixtures/commands", "test")
+    cli = CommandsFolder(testdir / "fixtures/commands", "test", ["not_a_command.py"])
 
     assert set(cli.list_commands(None)) == {
         "command_b:custom_name",
@@ -40,7 +48,7 @@ def test_list_commands():
 
 
 def test_get_command():
-    cli = CommandsFolder(testdir / "fixtures/commands", "test")
+    cli = CommandsFolder(testdir / "fixtures/commands", "test", ["not_a_command.py"])
 
     command = cli.get_command(None, "command_b:custom_name")
 

@@ -13,14 +13,23 @@ class CommandsFolder(click.Group):
 
     :param path: The folder path where the subcommands are stored.
     :param name: The name of the group command.
-    :param attrs: Other arguments passed to :class:`Group`
+    :param exclude: A list of module filenames that should be ignored.
+    :param attrs: Other arguments passed to :class:`Group`.
     """
 
-    def __init__(self, path: str, name: str | None = None, **attrs: Any) -> None:
+    def __init__(
+        self,
+        path: str,
+        name: str | None = None,
+        exclude: list[str] | None = None,
+        **attrs: Any,
+    ) -> None:
         super().__init__(name, **attrs)
 
         # The folder where all module commands are stored
         self.path = Path(path)
+
+        self.exclude = exclude or []
 
         #: The loaded Python modules containing the subcommands.
         self.modules: dict[str, types.ModuleType] = self._load_modules()
@@ -38,6 +47,7 @@ class CommandsFolder(click.Group):
                 item.is_file()
                 and item.suffix.lower() == ".py"
                 and item.name.lower() != "__init__.py"
+                and item.name not in self.exclude
             )
         ]
 
