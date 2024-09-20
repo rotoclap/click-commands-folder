@@ -9,7 +9,7 @@ python:
   install:
     - requirements: requirements/docs.txt
     - method: pip
-      path: ./src/click_commands_folder
+      path: .
 
 sphinx:
   configuration: docs/source/conf.py
