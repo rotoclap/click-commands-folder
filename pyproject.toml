@@ -27,4 +27,5 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/rotoclap/click-commands-folder"
+Documentation : "https://click-commands-folder.readthedocs.io"
 Issues = "https://github.com/rotoclap/click-commands-folder/issues"
