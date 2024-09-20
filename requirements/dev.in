@@ -2,3 +2,4 @@ click
 pip-tools
 rich
 tox
+pytest
