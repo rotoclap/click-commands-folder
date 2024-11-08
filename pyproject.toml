@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "click-commands-folder"
-version = "1.0"
+version = "1.0.1"
 authors = [
   { name="rotoclap", email="rotoclap@gmail.com" },
 ]
 description = "A Click extension to read commands from a folder"
 readme = "README.MD"
 license = {file = "LICENSE"}
-requires-python = ">=3.12"
+requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",

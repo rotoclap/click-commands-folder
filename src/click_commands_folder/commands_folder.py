@@ -1,9 +1,8 @@
-from pathlib import Path
 import importlib.util
 import sys
 import types
-from typing import Any
-from typing import List
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 import click
 
@@ -20,8 +19,8 @@ class CommandsFolder(click.Group):
     def __init__(
         self,
         path: str,
-        name: str | None = None,
-        exclude: list[str] | None = None,
+        name: Optional[str] = None,
+        exclude: Optional[List[str]] = None,
         **attrs: Any,
     ) -> None:
         super().__init__(name, **attrs)
@@ -32,9 +31,9 @@ class CommandsFolder(click.Group):
         self.exclude = exclude or []
 
         #: The loaded Python modules containing the subcommands.
-        self.modules: dict[str, types.ModuleType] = self._load_modules()
+        self.modules: Dict[str, types.ModuleType] = self._load_modules()
 
-    def _load_modules(self) -> dict[str, types.ModuleType]:
+    def _load_modules(self) -> Dict[str, types.ModuleType]:
         """This function explores the folder path and load all modules from Python files
         except ``__init__.py`` if found.
         """
@@ -125,7 +124,7 @@ class CommandsFolder(click.Group):
 
         return sorted(self.commands)
 
-    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+    def get_command(self, ctx: click.Context, cmd_name: str) -> Optional[click.Command]:
         """Load and return a command.
 
         :param ctx: A :class:`Context` object used when loading the commands.
